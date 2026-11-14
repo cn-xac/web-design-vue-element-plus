@@ -21,6 +21,7 @@ import { elementAdapter, runActions } from "./actions";
 import EpButton from "./designer/EpButton.vue";
 import EpSegmented from "./designer/EpSegmented.vue";
 import EpSelect from "./designer/EpSelect.vue";
+import EpTooltip from "./designer/EpTooltip.vue";
 
 /**
  * 设计器自身 UI 的 Element Plus 实现（D3）：
@@ -35,6 +36,7 @@ const designerKit: DesignerKit<Component> = createDesignerKit<Component>({
   Switch: ElSwitch as unknown as Component,
   Segmented: EpSegmented,
   ColorInput: ElColorPicker as unknown as Component,
+  Tooltip: EpTooltip,
   notify: (message, type = "info") => {
     ElMessage({ message, type });
   },
