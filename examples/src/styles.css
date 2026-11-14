@@ -304,7 +304,9 @@ code {
   .mat-card:has(.el-menu),
   .mat-card:has(.el-steps),
   .mat-card:has(.el-collapse),
-  .mat-card:has(.el-anchor) {
+  .mat-card:has(.el-anchor),
+  .mat-card:has(.el-row),
+  .mat-card:has(.el-col) {
     grid-column: span 2;
   }
 }
@@ -325,6 +327,20 @@ code {
 /* 卡片内渲染器不要被自身 max-width 限制，撑满卡片可用宽度 */
 .mat-body > .wb-renderer {
   max-width: none;
+}
+
+/* 物料总览卡片用物料 defaultProps 直接渲染，不会带示例 Schema 的 gutterVertical；
+   补一行间距兜底，避免 row / col 卡片里多行栅格贴在一起。 */
+.mat-body .el-row {
+  row-gap: 12px;
+}
+.mat-body .el-col {
+  min-width: 0;
+}
+/* 设计器里临时改过 row（未填 gutterVertical）时也不至于挤成一块；
+   BlockRow 的 inline rowGap 优先级更高，不会冲突。 */
+.demo__runtime .el-row {
+  row-gap: 12px;
 }
 
 .mat-head {
@@ -407,6 +423,46 @@ code {
   font-size: 12px;
   line-height: 1.8;
   max-width: 920px;
+}
+
+/* 外部显隐控制工具条（r5u4Ul）：验证宿主 force 优先于节点自身条件 */
+.demo__visibility-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid #b3d8ff;
+  border-radius: 6px;
+  background: #ecf5ff;
+}
+
+.demo__visibility-note {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5b6168;
+}
+
+/* 窄屏：头部改为纵向、物料总览收成单列、页签允许横向滚动 */
+@media (max-width: 640px) {
+  .demo__head-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .demo__tabs {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .demo__panel--catalog {
+    padding: 16px 14px 28px;
+  }
+  .mat-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .demo__visibility-bar {
+    gap: 8px;
+  }
 }
 
 @media (max-width: 900px) {

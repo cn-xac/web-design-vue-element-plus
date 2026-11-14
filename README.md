@@ -124,11 +124,14 @@ function exportData() {
 
 ### 渲染一个字段集合（栅格 + 校验）
 
+> `ec-row` / `ec-col` 已是 core 通用 24 栅格物料（2026-11-13 从本包上收），本包只提供 `BlockRow` / `BlockCol` 实现。
+> 多行折行时务必显式传 `gutterVertical`：EP 2.x 的 `el-row` 没有垂直 gutter，由 `row-gap` 兜底。
+
 ```ts
 const page = {
   ...createEmptyPage("信息录入"),
   children: [
-    { id: "row", component: "ec-row", props: { gutter: 16 }, children: [
+    { id: "row", component: "ec-row", props: { gutter: 16, gutterVertical: 16 }, children: [
       { id: "name", component: "ec-col", props: { span: 12 }, children: [
         { id: "name", component: "ec-input", props: { label: "姓名" },
           rules: [{ type: "required", message: "必填" }] },

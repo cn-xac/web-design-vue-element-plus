@@ -13,9 +13,9 @@
  * 动作（toast / setState / submitForm / confirm / resetForm）由 core 执行，
  * 宿主能力（ElMessage / ElMessageBox）由本适配包的 elementAdapter 提供。
  */
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { SchemaRenderer } from "@x-ac/web-design-vue";
-import type { PageSchema, UiEventPayload } from "@x-ac/web-design-core";
+import type { ExternalVisibility, PageSchema, UiEventPayload } from "@x-ac/web-design-core";
 
 const props = defineProps<{ page: PageSchema; data: Record<string, unknown> }>();
 
@@ -36,6 +36,15 @@ const rendererRef = ref<InstanceType<typeof SchemaRenderer> | null>(null);
 const liveData = ref<Record<string, unknown>>(JSON.parse(JSON.stringify(props.data)) as Record<string, unknown>);
 const events = ref<EventLine[]>([]);
 const submitted = ref<Record<string, unknown> | null>(null);
+
+/**
+ * 宿主级外部显隐控制（r5u4Ul）：force=true 时忽略节点自身的 show / hide 条件。
+ * 预置 Schema 的 n_v_show 带 show 条件，用这个开关即可在浏览器里验证优先级。
+ */
+const forceHidden = ref(false);
+const externalVisibility = computed((): ExternalVisibility =>
+  forceHidden.value ? { n_v_show: { visible: false, force: true } } : {},
+);
 
 function pushEvent(line: EventLine): void {
   events.value = [line, ...events.value].slice(0, 10);
@@ -80,10 +89,15 @@ function exportNow(): void {
 <template>
   <section class="demo__panel demo__panel--runtime">
     <div class="demo__runtime">
+      <div class="demo__visibility-bar">
+        <el-switch v-model="forceHidden" active-text="强制隐藏「显示条件」字段" />
+        <span class="demo__visibility-note">宿主 force 优先于节点自身条件；关掉后恢复本地判定</span>
+      </div>
       <SchemaRenderer
         ref="rendererRef"
         :page="page"
         :data="data"
+        :visibility="externalVisibility"
         :on-event="onEvent"
         @update:data="onDataChange"
         @node-event="onNodeEvent"

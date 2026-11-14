@@ -1,9 +1,10 @@
+import { SCHEMA_VERSION } from "@x-ac/web-design-core";
 import type { Material, NodeSchema, PageSchema } from "@x-ac/web-design-core";
 
 /** 构建一份最小可用的 PageSchema（SchemaRenderer 接收的就是它）。 */
 export function buildPage(id: string, children: NodeSchema[], title = id): PageSchema {
   return {
-    schemaVersion: "1.0.0",
+    schemaVersion: SCHEMA_VERSION,
     id,
     type: "page",
     meta: { title, device: "pc" },

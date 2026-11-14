@@ -74,7 +74,7 @@ const data = ref({ form: {} }); // 表单值落在 data.form.<id>
 
 ### 3.3 Schema 构造规则（写错会渲染失败或字段不绑定）
 
-- `PageSchema = { id, schemaVersion?, meta?, state?, children: NodeSchema[] }`；用 `createEmptyPage(title)` 起手最稳。
+- `PageSchema = { id, schemaVersion: string（必填，当前 1.1.0）, meta?, state?, children: NodeSchema[] }`；用 `createEmptyPage(title)` 起手最稳。
 - `NodeSchema = { id, component: "ec-xxx", props?, rules?, events?, children? }`。**`component` 必须带 `ec-` 前缀**（如 `ec-input`），core 的 `materialKey` 虽会归一，但写全名最稳。
 - **自动绑定**：渲染器把表单类物料按 `form.<node.id>` 绑定。所以初始数据 `data.form.<id>` 是回显值，`modelValue` 显式绑定优先。
 - **options 格式**（易错点）：
@@ -220,3 +220,10 @@ pnpm --filter ep-example typecheck
 - 按用户开发方式：**本地逐笔 GPG 签名提交**（`git commit -S -s`，`type(scope): 中文描述`），**不推送、不打 tag、不发 Release**（推送/发版由用户执行）。
 - 若签名失败 / 提交 `%G?` 为 `N` / 报 `lockfile disappeared`：**先跑 `gpg-unlock`**（已安装 `D:\software\bin\gpg-unlock`，Windows 侧直接敲），再 `git rebase --force-rebase --gpg-sign <base>` 补签。详见全局 `MEMORY.md`。
 - 不可逆动作（push、打 tag、npm publish）一律先授权。
+
+## 11. 显示 / 隐藏条件（r5u4Ul / rfD7Jv）
+
+- 引擎侧（core 1.1.0 / `@x-ac/web-design-vue` 源码）新增 `NodeSchema.visibility` 与统一判定；本适配包**不需要注册新物料、不需要改组件表**。示例站 `examples/vite.config.ts` 的 alias 直接消费上游源码，设计器「样式」Tab 的条件入口与 `ConditionBuilder` 弹窗自动生效。
+- 条件弹窗在引擎里用**原生 select / input**（保证 CI stub 可测），本包只在 `src/styles.css` 做 Element Plus 视觉适配；`designerKit` 7 槽位与 `UiAdapter.editors` 都覆盖不到该弹窗，不要在组件层重复实现。
+- 宿主级外部控制：`SchemaRenderer` 新增 `:visibility`（按节点 id 传 `{ visible, force? }`）；示例站 `RuntimeSection.vue` 的「强制隐藏」开关即演示，force 优先于节点自身条件。
+- 示例预置 Schema 的 `g_visibility` 分组含 show / hide / advanced 三类条件；`row()` 必须带 `gutterVertical`，否则多行栅格贴在一起。

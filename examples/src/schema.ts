@@ -38,9 +38,10 @@ const group = (id: string, title: string, children: Child[]): Child =>
   ({ id, component: "ec-card", props: { title, shadow: "never" }, children }) as Child;
 
 /**
- * 两列栅格：EP 专有的 ec-row / ec-col 是真实生效的布局组件
- * （core 的 ec-grid 在 EP 适配包里被映射成 div，columns 只是普通属性），
- * 这里用 EP 自己的栅格，才能让示例展示「适配包专有物料」的价值。
+ * 两列栅格：ec-row / ec-col 已是 core 通用 24 栅格物料（2026-11-13 从适配包上收），
+ * 本适配包只提供 BlockRow / BlockCol 组件实现，字段定义与默认值以 core 为准。
+ * gutterVertical 由 BlockRow 用 flex row-gap 兜底（EP 2.x 的 el-row 没有垂直 gutter），
+ * 多行折行时必须显式给值，否则行与行之间贴在一起。
  */
 const col = (id: string, child: Child): Child =>
   ({ id, component: "ec-col", props: { span: 12 }, children: [child] }) as Child;
@@ -49,7 +50,7 @@ const row = (id: string, children: Child[]): Child =>
   ({
     id,
     component: "ec-row",
-    props: { gutter: 16 },
+    props: { gutter: 16, gutterVertical: 16 },
     children: children.map((child, index) => col(`${id}_c${index}`, child)),
   }) as Child;
 
@@ -104,6 +105,49 @@ export function seedPage(): PageSchema {
           field("n_remote", "ec-switch", { label: "远程办公", activeText: "是", inactiveText: "否" }),
           field("n_radio", "ec-radio", { label: "办公方式", options: opts("现场", "混合", "远程") }),
           field("n_checkbox", "ec-checkbox", { label: "技能", options: opts("Vue", "React", "TypeScript") }),
+        ]),
+      ]),
+
+      group("g_visibility", "显示 / 隐藏条件（r5u4Ul）", [
+        field("n_v_tip", "ec-alert", {
+          type: "info",
+          title: "条件配置在节点自身，显示优先于隐藏",
+          description: "切换「部门」「远程办公」观察下方字段显隐；右侧「强制隐藏」开关演示宿主 force 覆盖本地条件。",
+          showIcon: true,
+          closable: false,
+        }),
+        row("n_row_visibility", [
+          field("n_v_show", "ec-input", {
+            label: "显示条件（部门=技术中心）",
+            placeholder: "把部门改成产品中心会隐藏",
+          }, {
+            visibility: {
+              show: { mode: "and", rows: [{ left: "form.n_dept", operator: "eq", value: "技术中心" }] },
+            },
+          }),
+          field("n_v_hide", "ec-input", {
+            label: "隐藏条件（远程办公为真）",
+            placeholder: "关掉远程办公会出现",
+          }, {
+            visibility: {
+              hide: { mode: "and", rows: [{ left: "form.n_remote", operator: "truthy" }] },
+            },
+          }),
+          field("n_v_advanced", "ec-text", {
+            text: "高级条件命中：1 and (2 or 3)｜条件 1 为真、条件 2 为假、条件 3 取「司龄 > 0」。",
+          }, {
+            visibility: {
+              show: {
+                mode: "advanced",
+                expression: "1 and (2 or 3)",
+                rows: [
+                  { value: "true" },
+                  { value: "false" },
+                  { left: "form.n_count", operator: "gt", value: 0 },
+                ],
+              },
+            },
+          }),
         ]),
       ]),
 
