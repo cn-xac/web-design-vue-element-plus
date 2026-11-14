@@ -16,8 +16,10 @@ const props = withDefaults(
     disabled?: boolean;
     size?: "small" | "default";
     clearable?: boolean;
+    /** 可搜索（元素多时输入关键字过滤，#3） */
+    filterable?: boolean;
   }>(),
-  { modelValue: "", options: () => [], placeholder: "", disabled: false, size: "small", clearable: false },
+  { modelValue: "", options: () => [], placeholder: "", disabled: false, size: "small", clearable: false, filterable: false },
 );
 
 const emit = defineEmits<{ "update:modelValue": [string | number]; change: [string | number] }>();
@@ -35,6 +37,7 @@ function onUpdate(value: string | number | undefined): void {
     :disabled="disabled"
     :size="size"
     :clearable="clearable"
+    :filterable="filterable"
     @update:model-value="onUpdate"
   >
     <el-option v-for="option in options" :key="String(option.value)" :label="option.label" :value="option.value" />
