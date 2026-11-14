@@ -39,8 +39,8 @@ export const EP_FORM_MATERIALS: EpMaterial[] = [
       ...controlHead("如 {{form.region}}"),
       {
         key: "options",
-        label: "选项路径",
-        type: "textarea",
+        label: "选项",
+        type: "optionPair",
         group: "content",
         portability: "content",
         tip: "一行一条路径，用 / 分层；重复的上级会自动合并",
@@ -78,8 +78,8 @@ export const EP_FORM_MATERIALS: EpMaterial[] = [
       ...controlHead("如 {{form.org}}"),
       {
         key: "options",
-        label: "树节点",
-        type: "textarea",
+        label: "选项",
+        type: "optionPair",
         group: "content",
         portability: "content",
         tip: "一行一条路径，用 / 分层",
@@ -112,7 +112,7 @@ export const EP_FORM_MATERIALS: EpMaterial[] = [
     },
     fields: [
       ...controlHead("如 {{form.scope}}，值为字符串数组"),
-      { key: "options", label: "选项", type: "options", group: "content", portability: "content", tip: "逗号分隔" },
+      { key: "options", label: "选项", type: "optionPair", group: "content", portability: "content", tip: "一行一个选项，名称在前值在后" },
       { key: "titles", label: "两侧标题", type: "text", group: "content", portability: "content", tip: "逗号分隔两个" },
       { key: "filterable", label: "可搜索", type: "boolean", group: "basic", portability: "behavior" },
       { key: "filterPlaceholder", label: "搜索占位", type: "text", group: "advanced", portability: "content" },
@@ -195,7 +195,7 @@ export const EP_FORM_MATERIALS: EpMaterial[] = [
     },
     fields: [
       ...controlHead("如 {{form.city}}"),
-      { key: "options", label: "建议列表", type: "options", group: "content", portability: "content", tip: "逗号分隔，按输入做前缀过滤" },
+      { key: "options", label: "建议列表", type: "optionPair", group: "content", portability: "content", tip: "一行一个选项，名称在前值在后；按输入做前缀过滤" },
       { key: "placeholder", label: "占位提示", type: "text", group: "basic", portability: "content" },
       { key: "clearable", label: "可清空", type: "boolean", group: "basic", portability: "behavior" },
       { key: "debounce", label: "防抖(ms)", type: "number", min: 0, group: "advanced", portability: "behavior" },

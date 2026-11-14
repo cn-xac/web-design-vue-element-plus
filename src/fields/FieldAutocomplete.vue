@@ -6,12 +6,12 @@
  * 需要远程搜索时用「下拉选择 + 开启 filterable」或者自定义物料。
  */
 import { computed } from "vue";
-import { parseLabels } from "@x-ac/web-design-core";
+import { parseOptions, type OptionItem } from "@x-ac/web-design-core";
 
 const props = withDefaults(
   defineProps<{
     modelValue?: unknown;
-    options?: string;
+    options?: string | OptionItem[];
     placeholder?: string;
     clearable?: boolean;
     disabled?: boolean;
@@ -35,7 +35,7 @@ const emit = defineEmits<{
   (e: "change", value: unknown): void;
 }>();
 
-const suggestions = computed(() => parseLabels(props.options));
+const suggestions = computed(() => parseOptions(props.options).map((item) => item.label));
 
 /** cb 拿到的是对象数组，展示字段固定为 value（EP 的约定） */
 function fetchSuggestions(query: string, callback: (items: Array<Record<string, unknown>>) => void): void {

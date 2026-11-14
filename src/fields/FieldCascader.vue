@@ -8,13 +8,13 @@
  * 中间层自动合并，重复的祖先只写一次也认。
  */
 import { computed } from "vue";
-import { parsePaths } from "@x-ac/web-design-core";
+import { parsePaths, type OptionItem } from "@x-ac/web-design-core";
 import { useFieldModel } from "@x-ac/web-design-vue/kit";
 
 const props = withDefaults(
   defineProps<{
     modelValue?: unknown;
-    options?: string;
+    options?: string | OptionItem[];
     placeholder?: string;
     separator?: string;
     clearable?: boolean;

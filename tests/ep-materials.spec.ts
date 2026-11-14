@@ -10,7 +10,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { mount } from "@vue/test-utils";
 import ElementPlus from "element-plus";
 import type { NodeSchema, PageSchema } from "@x-ac/web-design-core";
-import { missingComponents, MATERIALS } from "@x-ac/web-design-core";
+import { materialKey, missingComponents, MATERIALS } from "@x-ac/web-design-core";
 import { SchemaRenderer } from "@x-ac/web-design-vue";
 import { elementPlusAdapter, elementPlusMaterials, EP_FIELD_PATCHES } from "@x-ac/web-design-vue-element-plus";
 
@@ -291,5 +291,36 @@ describe("设计态包裹层穿透（修复「列宽由内容撑开」）", () =
     expect(wrapper.findComponent({ name: "ElRow" }).exists()).toBe(true);
     expect(wrapper.find(".el-col-12").exists()).toBe(true);
     wrapper.unmount();
+  });
+});
+
+describe("Element Plus：选项类物料的选项设置方式统一", () => {
+  /** 所有「带选项数据」的组件都必须走 optionPair（设计器里复用同一个选项弹窗 + 支持选项数据源） */
+  const OPTION_COMPONENTS = ["select", "radio", "checkbox", "transfer", "tree-select", "cascader", "autocomplete", "segmented"];
+
+  it("选项字段统一为 optionPair", () => {
+    const offenders: string[] = [];
+    for (const component of OPTION_COMPONENTS) {
+      const material = elementPlusMaterials.find((item) => materialKey(item.component) === materialKey(component));
+      if (!material) {
+        offenders.push(`${component}(物料缺失)`);
+        continue;
+      }
+      const field = material.fields.find((item) => item.key === "options");
+      if (!field) {
+        offenders.push(`${component}(没有 options 字段)`);
+        continue;
+      }
+      if (field.type !== "optionPair") offenders.push(`${component}(${field.type})`);
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it("optionPair 字段都在 content 分组，便于属性面板归位", () => {
+    for (const component of OPTION_COMPONENTS) {
+      const material = elementPlusMaterials.find((item) => materialKey(item.component) === materialKey(component));
+      const field = material?.fields.find((item) => item.key === "options");
+      if (field) expect(field.group).toBe("content");
+    }
   });
 });

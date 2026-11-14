@@ -3,13 +3,13 @@
  * 穿梭框。选项用逗号分隔，key 直接用文字 —— 低代码里没人会去对 key 和 label。
  */
 import { computed } from "vue";
-import { parseLabels } from "@x-ac/web-design-core";
+import { parseLabels, parseOptions, type OptionItem } from "@x-ac/web-design-core";
 import { useFieldModel } from "@x-ac/web-design-vue/kit";
 
 const props = withDefaults(
   defineProps<{
     modelValue?: unknown;
-    options?: string;
+    options?: string | OptionItem[];
     titles?: string;
     buttonTexts?: string;
     filterable?: boolean;
@@ -33,7 +33,9 @@ const emit = defineEmits<{
   (e: "change", value: unknown): void;
 }>();
 
-const data = computed(() => parseLabels(props.options).map((label) => ({ key: label, label })));
+const data = computed(() =>
+  parseOptions(props.options).map((item) => ({ key: item.value || item.label, label: item.label })),
+);
 const titles = computed(() => {
   const parts = parseLabels(props.titles);
   return parts.length === 2 ? parts : ["待选", "已选"];

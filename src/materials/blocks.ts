@@ -354,7 +354,7 @@ export const EP_BLOCK_MATERIALS: EpMaterial[] = [
     icon: "▭",
     defaultProps: { options: "日,周,月", value: "日", size: "default" },
     fields: [
-      { key: "options", label: "选项", type: "options", group: "content", portability: "content", tip: "逗号分隔" },
+      { key: "options", label: "选项", type: "optionPair", group: "content", portability: "content", tip: "一行一个选项，名称在前值在后" },
       { key: "value", label: "选中项", type: "text", group: "basic", portability: "behavior" },
       { key: "size", label: "尺寸", type: "select", options: SIZE_OPTIONS, group: "style", portability: "visual" },
       { key: "block", label: "撑满宽度", type: "boolean", group: "style", portability: "visual" },
