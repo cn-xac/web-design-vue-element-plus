@@ -1,14 +1,27 @@
 import { fileURLToPath, URL } from "node:url";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 
 const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
-/** Vite 8 起 SSR 环境不自动注入 fs，defineProps<ImportedType>() 需要显式提供 */
+/**
+ * Vite 8 起 SSR 环境不自动注入 fs，defineProps<ImportedType>() 需要显式提供。
+ * 必须用 isFile 而不是 existsSync：compiler-sfc 会先试目录路径（如 ./src/designer），
+ * existsSync 对目录也返回 true，于是把目录当模块文件 readFile，抛 EISDIR 导致整个 suite 0 test。
+ * 与上游 project/vitest.config.ts（dda304d）保持同一修法。
+ */
+const isFile = (file: string): boolean => {
+  try {
+    return statSync(file).isFile();
+  } catch {
+    return false;
+  }
+};
+
 const sfcFs = {
-  fileExists: (file: string) => existsSync(file),
-  readFile: (file: string) => (existsSync(file) ? readFileSync(file, "utf8") : undefined),
+  fileExists: isFile,
+  readFile: (file: string) => (isFile(file) ? readFileSync(file, "utf8") : undefined),
 };
 
 /**
