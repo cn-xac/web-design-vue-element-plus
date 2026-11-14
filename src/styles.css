@@ -19,3 +19,48 @@
   flex: 1;
   margin-left: 0;
 }
+
+/* ===== 显示 / 隐藏条件弹窗：引擎通用弹窗的 Element Plus 视觉适配 =====
+   引擎的 ConditionBuilder.vue 为兼顾 CI stub 使用原生 select / input，
+   这里只在安装了本适配包时把控件尺寸、圆角、聚焦态对齐 EP 基础表单，
+   不改组件结构，也不影响其它适配层（换库时整份样式不加载即静默失效）。
+   选择器多带一层 .cond__row 提高特异性，避免与弹窗 scoped 样式互相覆盖。 */
+.wbd-modal .cond__row .cond__select,
+.wbd-modal .cond__row .cond__value,
+.wbd-modal .cond__advanced .cond__expression {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #fff;
+  color: #606266;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.wbd-modal .cond__row .cond__select:focus,
+.wbd-modal .cond__row .cond__value:focus,
+.wbd-modal .cond__advanced .cond__expression:focus {
+  outline: none;
+  border-color: #409eff;
+}
+
+.wbd-modal .cond__modes .cond__mode.is-active {
+  border-color: #409eff;
+  color: #409eff;
+  background: #ecf5ff;
+}
+
+.wbd-modal .cond__ok {
+  border-color: #409eff;
+  background: #409eff;
+}
+
+@media (max-width: 640px) {
+  /* 窄屏下条件行允许换行，输入控件至少留 120px 可操作宽度 */
+  .wbd-modal .cond__row .cond__left,
+  .wbd-modal .cond__row .cond__value {
+    flex: 1 1 120px;
+    min-width: 0;
+  }
+}
