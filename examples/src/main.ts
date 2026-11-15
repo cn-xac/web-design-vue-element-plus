@@ -7,6 +7,10 @@ import "@x-ac/web-design-vue/style.css";
 import { elementPlusAdapter } from "@x-ac/web-design-vue-element-plus";
 import "./styles.css";
 import App from "./App.vue";
+import { installExternalMock } from "./mock/install-mock";
+
+// 静态示例站没有后端：拦截 /mock/api/* 返回本地 JSON，让外部数据源示例真实可用。
+installExternalMock();
 
 const app = createApp(App);
 app.use(ElementPlus);

@@ -7,7 +7,6 @@ import {
   ElDatePicker,
   ElDivider,
   ElInput,
-  ElInputNumber,
   ElLink,
   ElRate,
   ElSlider,
@@ -62,6 +61,7 @@ import FieldInputTag from "./fields/FieldInputTag.vue";
 import FieldOrgPicker from "./fields/FieldOrgPicker.vue";
 import FieldRadio from "./fields/FieldRadio.vue";
 import FieldSelect from "./fields/FieldSelect.vue";
+import FieldNumber from "./fields/FieldNumber.vue";
 import FieldTransfer from "./fields/FieldTransfer.vue";
 import FieldTreeSelect from "./fields/FieldTreeSelect.vue";
 import FieldUpload from "./fields/FieldUpload.vue";
@@ -126,7 +126,7 @@ const COMPONENT_TABLE: Record<string, Component | string> = {
   /* 表单 */
   input: FieldInputSuggest,
   textarea: ElInput,
-  number: ElInputNumber,
+  number: FieldNumber,
   select: FieldSelect,
   radio: FieldRadio,
   checkbox: FieldCheckbox,

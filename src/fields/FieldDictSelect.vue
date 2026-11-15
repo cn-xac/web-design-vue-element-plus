@@ -46,12 +46,17 @@ const DICTS: Record<string, Array<{ label: string; value: string }>> = {
   ],
 };
 
+/** 相对视口定位：不受祖先 overflow / transform 影响，避免弹层跑到左上角 */
+const POPPER_OPTIONS = { strategy: "fixed" as const };
+
 const items = computed(() => DICTS[props.dict] ?? DICTS.priority);
 </script>
 
 <template>
   <el-select
     :model-value="modelValue as never"
+    :persistent="false"
+    :popper-options="POPPER_OPTIONS"
     :placeholder="placeholder"
     :disabled="disabled"
     clearable

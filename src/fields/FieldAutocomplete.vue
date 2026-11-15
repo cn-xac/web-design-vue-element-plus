@@ -37,6 +37,9 @@ const emit = defineEmits<{
 
 const suggestions = computed(() => parseOptions(props.options).map((item) => item.label));
 
+/** 相对视口定位：不受祖先 overflow / transform 影响，避免建议弹层跑到左上角 */
+const POPPER_OPTIONS = { strategy: "fixed" as const };
+
 /** cb 拿到的是对象数组，展示字段固定为 value（EP 的约定） */
 function fetchSuggestions(query: string, callback: (items: Array<Record<string, unknown>>) => void): void {
   const keyword = query.trim();
@@ -62,6 +65,7 @@ function onInput(value: unknown): void {
   <el-autocomplete
     :model-value="String(modelValue ?? '')"
     :fetch-suggestions="fetchSuggestions"
+    :popper-options="POPPER_OPTIONS"
     :placeholder="placeholder"
     :clearable="clearable"
     :disabled="disabled"

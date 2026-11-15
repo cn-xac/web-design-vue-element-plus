@@ -1,0 +1,39 @@
+{
+  "departments": {
+    "code": 0,
+    "message": "ok",
+    "list": [
+      { "deptCode": "D001", "deptName": "技术中心" },
+      { "deptCode": "D002", "deptName": "产品中心" },
+      { "deptCode": "D003", "deptName": "设计中心" },
+      { "deptCode": "D004", "deptName": "市场中心" }
+    ]
+  },
+  "employees": {
+    "code": 0,
+    "message": "ok",
+    "list": [
+      { "empId": "E1001", "empName": "张三", "deptName": "技术中心", "mobile": "13800000001" },
+      { "empId": "E1002", "empName": "李四", "deptName": "产品中心", "mobile": "13800000002" },
+      { "empId": "E1003", "empName": "王五", "deptName": "设计中心", "mobile": "13800000003" },
+      { "empId": "E1004", "empName": "赵六", "deptName": "市场中心", "mobile": "13800000004" }
+    ]
+  },
+  "profile": {
+    "code": 0,
+    "message": "ok",
+    "name": "张三",
+    "title": "高级前端工程师",
+    "deptName": "技术中心",
+    "mobile": "13800000001"
+  },
+  "orderDetails": {
+    "code": 0,
+    "message": "ok",
+    "list": [
+      { "goodsName": "机械键盘", "qty": 2, "price": 399 },
+      { "goodsName": "27 寸显示器", "qty": 1, "price": 1299 },
+      { "goodsName": "人体工学椅", "qty": 1, "price": 899 }
+    ]
+  }
+}

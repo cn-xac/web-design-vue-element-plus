@@ -63,6 +63,7 @@ const cascaderProps = computed(() => ({
 <template>
   <el-cascader
     :model-value="modelValue as never"
+    :persistent="false"
     :options="tree"
     :props="cascaderProps"
     :placeholder="placeholder"

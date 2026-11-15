@@ -74,7 +74,7 @@ const data = ref({ form: {} }); // 表单值落在 data.form.<id>
 
 ### 3.3 Schema 构造规则（写错会渲染失败或字段不绑定）
 
-- `PageSchema = { id, schemaVersion: string（必填，当前 1.1.0）, meta?, state?, children: NodeSchema[] }`；用 `createEmptyPage(title)` 起手最稳。
+- `PageSchema = { id, schemaVersion: string（必填，当前 1.3.0）, meta?, state?, children: NodeSchema[] }`；用 `createEmptyPage(title)` 起手最稳。
 - `NodeSchema = { id, component: "ec-xxx", props?, rules?, events?, children? }`。**`component` 必须带 `ec-` 前缀**（如 `ec-input`），core 的 `materialKey` 虽会归一，但写全名最稳。
 - **自动绑定**：渲染器把表单类物料按 `form.<node.id>` 绑定。所以初始数据 `data.form.<id>` 是回显值，`modelValue` 显式绑定优先。
 - **options 格式**（易错点）：
@@ -223,7 +223,8 @@ pnpm --filter ep-example typecheck
 
 ## 11. 显示 / 隐藏条件（r5u4Ul / rfD7Jv）
 
-- 引擎侧（core 1.1.0 / `@x-ac/web-design-vue` 源码）新增 `NodeSchema.visibility` 与统一判定；本适配包**不需要注册新物料、不需要改组件表**。示例站 `examples/vite.config.ts` 的 alias 直接消费上游源码，设计器「样式」Tab 的条件入口与 `ConditionBuilder` 弹窗自动生效。
+- 引擎侧（core 1.3.0 / `@x-ac/web-design-vue` 源码）新增 `NodeSchema.visibility`（`{ when, action? }`）与统一判定；本适配包**不需要注册新物料、不需要改组件表**。示例站 `examples/vite.config.ts` 的 alias 直接消费上游源码，设计器「样式」Tab 的条件入口与 `ConditionBuilder` 弹窗自动生效。
+- 显隐语义：`when` 命中执行 `action`（`show` / `hide`，缺省 `show`），未命中执行相反动作——完整布尔闭环，无中间态。1.3.0 已移除旧的 show/hide 双组。
 - 条件弹窗在引擎里用**原生 select / input**（保证 CI stub 可测），本包只在 `src/styles.css` 做 Element Plus 视觉适配；`designerKit` 7 槽位与 `UiAdapter.editors` 都覆盖不到该弹窗，不要在组件层重复实现。
 - 宿主级外部控制：`SchemaRenderer` 新增 `:visibility`（按节点 id 传 `{ visible, force? }`）；示例站 `RuntimeSection.vue` 的「强制隐藏」开关即演示，force 优先于节点自身条件。
-- 示例预置 Schema 的 `g_visibility` 分组含 show / hide / advanced 三类条件；`row()` 必须带 `gutterVertical`，否则多行栅格贴在一起。
+- 示例预置 Schema 的 `g_visibility` 分组含「命中显示 / 命中隐藏 / 高级」三类示范；`row()` 必须带 `gutterVertical`，否则多行栅格贴在一起。

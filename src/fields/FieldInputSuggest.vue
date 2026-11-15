@@ -33,6 +33,8 @@ const emit = defineEmits<{
 }>();
 
 const attrs = useAttrs();
+/** 相对视口定位：不受祖先 overflow / transform 影响，避免候选弹层跑到左上角 */
+const POPPER_OPTIONS = { strategy: "fixed" as const };
 const suggestions = computed(() =>
   parseOptions(props.options)
     .map((item) => item.label)
@@ -70,6 +72,7 @@ function onSelect(item: Record<string, unknown>): void {
     v-if="hasCandidates"
     v-bind="attrs"
     :model-value="value"
+    :popper-options="POPPER_OPTIONS"
     :fetch-suggestions="fetchSuggestions"
     :placeholder="props.placeholder"
     :clearable="props.clearable"

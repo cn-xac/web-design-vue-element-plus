@@ -26,6 +26,9 @@ const { onUpdate } = useFieldModel(
   (value) => emit("change", value),
 );
 
+/** 相对视口定位：不受祖先 overflow / transform 影响，避免弹层跑到左上角 */
+const POPPER_OPTIONS = { strategy: "fixed" as const };
+
 const ORG_TREE = [
   {
     value: "hq",
@@ -50,6 +53,8 @@ const ORG_TREE = [
 <template>
   <el-tree-select
     :model-value="modelValue as never"
+    :persistent="false"
+    :popper-options="POPPER_OPTIONS"
     :data="ORG_TREE"
     :placeholder="placeholder"
     :check-strictly="checkStrictly"

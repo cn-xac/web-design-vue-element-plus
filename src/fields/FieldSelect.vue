@@ -66,6 +66,9 @@ const emit = defineEmits<{
   (e: "change", value: unknown): void;
 }>();
 
+/** 相对视口定位：不受祖先 overflow / transform 影响，避免弹层跑到左上角 */
+const POPPER_OPTIONS = { strategy: "fixed" as const };
+
 const items = computed(() => parseOptions(props.options));
 
 const { onUpdate } = useFieldModel(
@@ -78,6 +81,8 @@ const { onUpdate } = useFieldModel(
 <template>
   <el-select
     :model-value="modelValue as never"
+    :persistent="false"
+    :popper-options="POPPER_OPTIONS"
     :placeholder="placeholder"
     :clearable="clearable"
     :disabled="disabled"

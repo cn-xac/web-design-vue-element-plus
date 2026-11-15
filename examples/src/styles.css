@@ -11,7 +11,13 @@ body,
 #app {
   height: 100%;
   margin: 0;
-  /* 视口固定：文档级滚动一律禁用，滚动只发生在各区域容器内部 */
+}
+
+/* 视口固定：文档级滚动禁用，滚动只发生在各区域容器内部。
+   关键：overflow 只加在 #app / .demo 上，不要加在 body。
+   Element Plus 的弹层默认 teleport 到 body，body 一旦 overflow:hidden 就会成为裁剪容器，
+   下拉 / 输入候选等弹层会定位异常（跑到左上角、不跟随元素）。 */
+#app {
   overflow: hidden;
 }
 
