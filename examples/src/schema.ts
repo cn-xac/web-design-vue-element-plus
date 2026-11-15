@@ -62,7 +62,9 @@ export function seedPage(): PageSchema {
   return {
     ...createEmptyPage("Element Plus 适配层完整示例"),
     id: PAGE_ID,
-    state: {},
+    // 设计器画布的 scope 来自 state；渲染器则由宿主传入 seedData（优先）。
+    // 这里给两处计算输入一个初值，让设计器里也能直接看到高级计算的结果。
+    state: { form: { n_count: 3, n_amount: 12800.5 } },
     children: [
       field("n_title", "ec-title", { text: "员工信息登记", level: 3 }),
 
@@ -106,6 +108,28 @@ export function seedPage(): PageSchema {
           field("n_radio", "ec-radio", { label: "办公方式", options: opts("现场", "混合", "远程") }),
           field("n_checkbox", "ec-checkbox", { label: "技能", options: opts("Vue", "React", "TypeScript") }),
         ]),
+      ]),
+
+      group("g_calc", "高级计算（rtHicl）", [
+        field("n_calc_tip", "ec-alert", {
+          type: "success",
+          title: "高级计算示例：司龄 × 12 + 金额",
+          description: "下方文字由计算自动回填。选中该文字元素 → 右侧属性面板头部「高级计算」可改参与元素、算式与高级函数；点弹窗内 ? 看完整函数说明。",
+          showIcon: true,
+          closable: false,
+        }),
+        field("n_calc_total", "ec-text", {
+          text: "{{form.n_calc_total}}",
+        }, {
+          calculation: {
+            operands: [
+              { alias: "A", path: "form.n_count", label: "司龄" },
+              { alias: "B", path: "form.n_amount", label: "金额" },
+            ],
+            formula: "ROUND(SUM(A * 12, B), 2)",
+            precision: 2,
+          },
+        }),
       ]),
 
       group("g_visibility", "显示 / 隐藏条件（r5u4Ul）", [
