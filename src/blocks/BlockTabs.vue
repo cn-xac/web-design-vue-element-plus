@@ -1,14 +1,32 @@
 <script setup lang="ts">
 /**
- * 标签页。同样用「标签:内容」成对配置。
- * 内容区支持 {{}} 表达式 —— 文本走插值，渲染器在 props 层已经求值。
+ * 标签页（re0BNA）。
+ *
+ * items 支持两种形态，运行时统一归一为 TabItem[]：
+ * - 旧：`标题:内容,标题:内容` 成对字符串，内容为纯文本；
+ * - 新：结构化 [{ id, label, mark, text, dataPath, url }]。
+ *
+ * 页签内容来源，按优先级 dataPath → url → text 解析：
+ * - dataPath：绑定数据里的 schema 路径，运行时按 schema 协议解析为页面；
+ * - url：外部 URL（返回 schema JSON），拉取后按 schema 协议解析为页面。
+ * 内嵌页共用宿主 scope，与宿主表单共享同一份数据。
+ *
+ * 设计态只做只读预览（mode=edit、不发请求、不挂事件），避免设计器里误触发表单行为。
  */
-import { computed, ref, watch } from "vue";
-import { parsePairs } from "@x-ac/web-design-core";
+import { computed, inject, reactive, ref, watch } from "vue";
+import {
+  getByPath,
+  parseTabItems,
+  request,
+  type NodeSchema,
+  type PageSchema,
+  type TabItem,
+} from "@x-ac/web-design-core";
+import { RENDER_ENV, SchemaFragment } from "@x-ac/web-design-vue";
 
 const props = withDefaults(
   defineProps<{
-    items?: string;
+    items?: string | TabItem[];
     active?: string;
     type?: "" | "card" | "border-card";
     tabPosition?: "top" | "right" | "bottom" | "left";
@@ -18,18 +36,79 @@ const props = withDefaults(
   { items: "", active: "", type: "", tabPosition: "top", stretch: false, closable: false },
 );
 
-const list = computed(() => parsePairs(props.items));
+/** 渲染环境：物料组件拿不到 props.scope，只能从注入里取（见 SchemaNode provide） */
+const env = inject(RENDER_ENV, null);
+const scope = computed<Record<string, unknown>>(() => env?.scope ?? {});
+/** 设计态不渲染真实交互，只做静态预览 */
+const embedMode = computed<"view" | "edit">(() => (env?.design ? "edit" : (env?.mode ?? "view")));
+
+const tabs = computed<TabItem[]>(() => parseTabItems(props.items));
 
 const current = ref("");
 watch(
   () => [props.items, props.active] as const,
   () => {
-    const raw = props.active.trim();
-    const at = list.value.findIndex((item) => item.label === raw);
-    current.value = raw ? (at >= 0 ? String(at) : raw) : list.value.length ? "0" : "";
+    const raw = String(props.active ?? "").trim();
+    // 先按 label 匹配；匹配不到再按自定义 mark 匹配，实现「数据控制默认激活」
+    const at = tabs.value.findIndex(
+      (tab) => tab.label === raw || (tab.mark !== undefined && tab.mark === raw),
+    );
+    // 配置的默认项找不到（如标题被改过）时回到第一项，避免整页没有激活页签
+    if (!tabs.value.length) current.value = "";
+    else if (raw && at >= 0) current.value = String(at);
+    else current.value = "0";
   },
   { immediate: true },
 );
+
+/* ---------------- 外部 URL：拉取 schema JSON ---------------- */
+
+interface RemoteState {
+  loading: boolean;
+  error: string;
+  data?: PageSchema | NodeSchema[];
+}
+
+const remote = reactive<Record<string, RemoteState>>({});
+
+function loadRemote(tab: TabItem): void {
+  if (!tab.url || remote[tab.url]) return;
+  const url = tab.url;
+  remote[url] = { loading: true, error: "" };
+  const pending = tab.method === "post" ? request.post(url) : request.get(url);
+  pending
+    .then((res) => {
+      remote[url] = { loading: false, error: "", data: res.data as PageSchema | NodeSchema[] };
+    })
+    .catch((error: unknown) => {
+      remote[url] = {
+        loading: false,
+        error: `内容加载失败：${(error as Error)?.message ?? String(error)}`,
+      };
+    });
+}
+
+watch(
+  () => tabs.value.map((tab) => `${tab.method ?? "get"}:${tab.url ?? ""}`).join("|"),
+  () => {
+    if (env?.design) return; // 设计态不打接口，只预览已有内容
+    tabs.value.forEach(loadRemote);
+  },
+  { immediate: true },
+);
+
+/** 解析页签内嵌内容：dataPath 本地优先，其次 url 拉取结果 */
+function embeddedOf(tab: TabItem): PageSchema | NodeSchema[] | null {
+  if (tab.dataPath) {
+    return (getByPath(scope.value, tab.dataPath) as PageSchema | NodeSchema[] | null) ?? null;
+  }
+  if (tab.url) return remote[tab.url]?.data ?? null;
+  return null;
+}
+
+function remoteState(tab: TabItem): RemoteState | undefined {
+  return tab.url ? remote[tab.url] : undefined;
+}
 </script>
 
 <template>
@@ -40,8 +119,19 @@ watch(
     :stretch="stretch"
     :closable="closable"
   >
-    <el-tab-pane v-for="(item, index) in list" :key="index" :label="item.label" :name="String(index)">
-      <div class="wb-tabs__body">{{ item.value }}</div>
+    <el-tab-pane v-for="(tab, index) in tabs" :key="tab.id" :label="tab.label" :name="String(index)">
+      <SchemaFragment
+        v-if="embeddedOf(tab)"
+        :page="embeddedOf(tab)"
+        :scope="scope"
+        :mode="embedMode"
+        :design="false"
+      />
+      <div v-else-if="remoteState(tab)?.loading" class="wb-tabs__state">加载中…</div>
+      <div v-else-if="remoteState(tab)?.error" class="wb-tabs__state wb-tabs__state--error">
+        {{ remoteState(tab)?.error }}
+      </div>
+      <div v-else class="wb-tabs__body">{{ tab.text }}</div>
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -53,5 +143,13 @@ watch(
   color: var(--el-text-color-regular);
   white-space: pre-wrap;
   padding: 4px 0;
+}
+.wb-tabs__state {
+  padding: 8px 0;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+.wb-tabs__state--error {
+  color: var(--el-color-danger);
 }
 </style>

@@ -40,8 +40,8 @@ describe("输入框：多条数据作为下拉候选", () => {
     await wrapper.vm.$nextTick();
 
     const updates = wrapper.emitted("update:modelValue") ?? [];
-    expect(updates.at(-1)).toEqual(["张三/ZS001"]);
+    expect(updates[updates.length - 1]).toEqual(["张三/ZS001"]);
     const changes = wrapper.emitted("change") ?? [];
-    expect(changes.at(-1)).toEqual(["张三/ZS001"]);
+    expect(changes[changes.length - 1]).toEqual(["张三/ZS001"]);
   });
 });

@@ -75,7 +75,7 @@ export const EP_BLOCK_MATERIALS: EpMaterial[] = [
       { key: "active", label: "默认展开", type: "text", group: "basic", portability: "behavior", tip: "写面板标题，多个用逗号分隔" },
       { key: "accordion", label: "手风琴模式", type: "boolean", group: "advanced", portability: "behavior" },
     ],
-    hint: "内容用「标题:内容」成对填写，不需要往里拖节点",
+    hint: "标签项由弹窗维护；内容可绑定数据或外部 URL，按 schema 协议解析为页面",
   },
   {
     component: "tabs",
@@ -83,10 +83,18 @@ export const EP_BLOCK_MATERIALS: EpMaterial[] = [
     category: "布局",
     kind: "display",
     icon: "▭",
-    defaultProps: { items: "基本信息:第一页内容,扩展配置:第二页内容", active: "基本信息", type: "", tabPosition: "top" },
+    defaultProps: {
+      items: [
+        { id: "tab1", label: "基本信息", text: "第一页内容" },
+        { id: "tab2", label: "扩展配置", text: "第二页内容" },
+      ],
+      active: "基本信息",
+      type: "",
+      tabPosition: "top",
+    },
     fields: [
-      { key: "items", label: "标签页", type: "textarea", group: "content", portability: "content", tip: "一行一项，写成「标签:内容」" },
-      { key: "active", label: "默认选中", type: "text", group: "basic", portability: "behavior" },
+      { key: "items", label: "标签项", type: "tabItems", group: "content", portability: "content", tip: "维护标题、标记与内容来源（文本 / 绑定数据 / 外部 URL）" },
+      { key: "active", label: "默认选中", type: "text", group: "basic", portability: "behavior", tip: "填标签标题或自定义标记，可写 {{}} 交给数据控制" },
       {
         key: "type",
         label: "样式",
