@@ -52,6 +52,7 @@ import BlockTitle from "./blocks/BlockTitle.vue";
 import BlockTooltip from "./blocks/BlockTooltip.vue";
 import BlockWatermark from "./blocks/BlockWatermark.vue";
 import FieldAmount from "./fields/FieldAmount.vue";
+import FieldInputSuggest from "./fields/FieldInputSuggest.vue";
 import FieldAutocomplete from "./fields/FieldAutocomplete.vue";
 import FieldCascader from "./fields/FieldCascader.vue";
 import FieldCheckbox from "./fields/FieldCheckbox.vue";
@@ -123,7 +124,7 @@ const COMPONENT_TABLE: Record<string, Component | string> = {
   pagination: BlockPagination,
 
   /* 表单 */
-  input: ElInput,
+  input: FieldInputSuggest,
   textarea: ElInput,
   number: ElInputNumber,
   select: FieldSelect,
