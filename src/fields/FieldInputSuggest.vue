@@ -10,7 +10,7 @@
  * 也可以是选项数据源 / 外部数据源写入的 {{options.<节点ID>}} 绑定。
  * 用户点选一条时回填**显示文本 label**（与「显示内容」模板渲染出的文本一致）。
  */
-import { computed, useAttrs } from "vue";
+import { computed, useAttrs, watch } from "vue";
 import { ElAutocomplete, ElInput } from "element-plus";
 import { parseOptions, type OptionItem } from "@x-ac/web-design-core";
 
@@ -43,8 +43,29 @@ const suggestions = computed(() =>
 const hasCandidates = computed(() => suggestions.value.length > 0);
 const value = computed(() => String(props.modelValue ?? ""));
 
+/**
+ * 上一次 fetch 的查询串。用于区分「输入」与「退格」：
+ * - 新 query 是上次的真前缀（删掉了尾部字符）= 退格 → 不自动选中，
+ *   避免刚回填的完整 label 被吸附回去、无法逐字删除；
+ * - 其余（变长、同长替换、清空后重输）= 输入 → 过滤到唯一时允许自动选中。
+ * 选中后会被置为完整候选 label，使随后的等长查询不再重复触发。
+ */
+let lastQuery = "";
+
+// 输入框被清空（含 clear 按钮）时重置基准，否则「清空后重输相同前缀」会被误判为退格，
+// 导致过滤到唯一时不再自动选中。
+watch(value, (next) => {
+  if (!next) lastQuery = "";
+});
+
 function onInput(next: unknown): void {
   emit("update:modelValue", next);
+}
+
+/** 点选候选：回填显示文本，并抛 change 让 Schema 里配置的动作照常执行 */
+function selectLabel(label: string): void {
+  emit("update:modelValue", label);
+  emit("change", label);
 }
 
 /** el-autocomplete 的 cb 收对象数组，展示字段固定为 value */
@@ -52,18 +73,28 @@ function fetchSuggestions(
   query: string,
   callback: (items: Array<Record<string, unknown>>) => void,
 ): void {
-  const keyword = String(query ?? "").trim();
+  const q = String(query ?? "");
+  const keyword = q.trim();
   const matched = keyword
     ? suggestions.value.filter((label) => label.includes(keyword))
     : suggestions.value;
+
+  // 搜索过滤后只剩一条候选，且用户仍在输入（非退格）时，等价于点选自动回填。
+  // 多条候选时不自动选，继续交给用户从下拉里点（与历史约定一致）。
+  const isDeleting = q.length < lastQuery.length && lastQuery.startsWith(q);
+  if (keyword && matched.length === 1 && !isDeleting && value.value !== matched[0]) {
+    lastQuery = matched[0]!;
+    selectLabel(matched[0]!);
+  } else {
+    lastQuery = q;
+  }
   callback(matched.map((label) => ({ value: label })));
 }
 
 /** 点选候选：回填显示文本，并抛 change 让 Schema 里配置的动作照常执行 */
 function onSelect(item: Record<string, unknown>): void {
   const label = item?.value == null ? "" : String(item.value);
-  emit("update:modelValue", label);
-  emit("change", label);
+  selectLabel(label);
 }
 </script>
 
