@@ -13,7 +13,7 @@
  *
  * 设计态只做只读预览（mode=edit、不发请求、不挂事件），避免设计器里误触发表单行为。
  */
-import { computed, inject, reactive, ref, useSlots, watch, type VNode } from "vue";
+import { Fragment, computed, inject, reactive, ref, useSlots, watch, type VNode } from "vue";
 import {
   getByPath,
   parseTabItems,
@@ -50,8 +50,27 @@ const tabs = computed<TabItem[]>(() => parseTabItems(props.items));
  * 与 React 侧 TabsBlock 的 paneChildOf 语义对齐。
  */
 const slots = useSlots();
+
+/**
+ * 展平 Fragment：渲染器用 `<template v-if>` 包 children，编译后会套一层 Fragment，
+ * 真正的 pane 容器 VNode 在其 children 里。只检查顶层 vnode 会永远筛不到。
+ */
+function flattenVNodes(nodes: unknown[]): VNode[] {
+  const out: VNode[] = [];
+  for (const raw of nodes) {
+    if (!raw || typeof raw !== "object") continue;
+    const vnode = raw as VNode;
+    if (vnode.type === Fragment && Array.isArray(vnode.children)) {
+      out.push(...flattenVNodes(vnode.children as unknown[]));
+      continue;
+    }
+    out.push(vnode);
+  }
+  return out;
+}
+
 function paneVNodes(tab: TabItem): VNode[] {
-  const list = slots.default?.() ?? [];
+  const list = flattenVNodes(slots.default?.() ?? []);
   return list.filter((vnode) => {
     const node = (vnode.props as { node?: { props?: { paneId?: unknown } } } | null)?.node;
     return node?.props?.paneId === tab.id;

@@ -18,6 +18,7 @@ import BlockTabs from "../src/blocks/BlockTabs.vue";
 import { RENDER_ENV, UI_ADAPTER } from "@x-ac/web-design-vue";
 import { COMPONENT_MAP } from "../src/components";
 import { elementPlusMaterials } from "../src/materials";
+import type { TabItem } from "@x-ac/web-design-core";
 
 const epAdapter = { name: "ep-test", components: COMPONENT_MAP, materials: elementPlusMaterials };
 
@@ -92,5 +93,48 @@ describe("标签页：内容按 schema 协议渲染为页面", () => {
       items: [{ id: "a", label: "缺数据", dataPath: "form.missing", text: "兜底文本" }],
     });
     expect(wrapper.text()).toContain("兜底文本");
+  });
+});
+
+describe("标签页：design 页签渲染 pane 容器（rGjzDs）", () => {
+  /** 模拟渲染器分发的 pane 容器 VNode：props.node 带 paneId */
+  const PaneStub = defineComponent({
+    props: { node: Object },
+    setup: () => () => h("div", { class: "pane-stub" }, "页签里的内容"),
+  });
+
+  function mountWithPanes(items: TabItem[], design: boolean) {
+    const Host = defineComponent({
+      setup() {
+        provide(UI_ADAPTER, epAdapter as never);
+        provide(RENDER_ENV, { scope: {}, mode: "view", design });
+        return () =>
+          h(
+            BlockTabs,
+            { items },
+            {
+              default: () => [h(PaneStub, { node: { props: { paneId: "a" } } })],
+            },
+          );
+      },
+    });
+    return mount(Host, { global: { plugins: [ElementPlus] } });
+  }
+
+  it("预览态（design=false）渲染 pane 容器内容", () => {
+    const wrapper = mountWithPanes([{ id: "a", label: "概览", content: "design" }], false);
+    expect(wrapper.find(".pane-stub").exists()).toBe(true);
+    expect(wrapper.text()).toContain("页签里的内容");
+  });
+
+  it("设计态同样渲染 pane 容器，但不再显示空页签文案", () => {
+    const wrapper = mountWithPanes([{ id: "a", label: "概览", content: "design" }], true);
+    expect(wrapper.find(".pane-stub").exists()).toBe(true);
+    expect(wrapper.text()).not.toContain("从左侧物料面板拖入");
+  });
+
+  it("旧页面无 content 字段时，有 pane 容器也照常渲染", () => {
+    const wrapper = mountWithPanes([{ id: "a", label: "概览" }], false);
+    expect(wrapper.find(".pane-stub").exists()).toBe(true);
   });
 });
