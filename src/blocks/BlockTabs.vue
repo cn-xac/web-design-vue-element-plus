@@ -140,8 +140,9 @@ function remoteState(tab: TabItem): RemoteState | undefined {
     :closable="closable"
   >
     <el-tab-pane v-for="(tab, index) in tabs" :key="tab.id" :label="tab.label" :name="String(index)">
-      <!-- design 来源：渲染器分发的 pane 容器（可拖拽编辑 / 数据驱动），优先级最高 -->
-      <PaneVNodes v-if="tab.content === 'design' && hasPane(tab)" :nodes="paneVNodes(tab)" />
+      <!-- 有 pane 容器就优先渲染（可拖拽编辑 / 数据驱动），不再依赖 content 字段，
+           兼容本期之前创建、尚未写 content 的旧页面 -->
+      <PaneVNodes v-if="hasPane(tab)" :nodes="paneVNodes(tab)" />
       <SchemaFragment
         v-else-if="embeddedOf(tab)"
         :page="embeddedOf(tab)"
@@ -155,7 +156,7 @@ function remoteState(tab: TabItem): RemoteState | undefined {
       </div>
       <!-- 纯文本只兼容旧页面；设计器已不再提供该来源，建议改用文本标签节点 -->
       <div v-else-if="tab.text" class="wb-tabs__body">{{ tab.text }}</div>
-      <div v-else-if="env?.design" class="wb-tabs__state">空页签 · 从右侧物料拖入组件，或配置内容数据路径</div>
+      <div v-else-if="env?.design" class="wb-tabs__state">空页签 · 从左侧物料面板拖入组件</div>
     </el-tab-pane>
   </el-tabs>
 </template>
