@@ -13,7 +13,7 @@
  *
  * 设计态只做只读预览（mode=edit、不发请求、不挂事件），避免设计器里误触发表单行为。
  */
-import { computed, inject, reactive, ref, watch } from "vue";
+import { computed, inject, reactive, ref, useSlots, watch, type VNode } from "vue";
 import {
   getByPath,
   parseTabItems,
@@ -43,6 +43,26 @@ const scope = computed<Record<string, unknown>>(() => env?.scope ?? {});
 const embedMode = computed<"view" | "edit">(() => (env?.design ? "edit" : (env?.mode ?? "view")));
 
 const tabs = computed<TabItem[]>(() => parseTabItems(props.items));
+
+/**
+ * design 页签的 pane 容器由渲染器作为默认 slot 传入（每个是 SchemaNode 组件 VNode，
+ * props.node 即容器 NodeSchema）。物料按 paneId 取回对应 VNode 渲染到该页签。
+ * 与 React 侧 TabsBlock 的 paneChildOf 语义对齐。
+ */
+const slots = useSlots();
+function paneVNodes(tab: TabItem): VNode[] {
+  const list = slots.default?.() ?? [];
+  return list.filter((vnode) => {
+    const node = (vnode.props as { node?: { props?: { paneId?: unknown } } } | null)?.node;
+    return node?.props?.paneId === tab.id;
+  });
+}
+function hasPane(tab: TabItem): boolean {
+  return paneVNodes(tab).length > 0;
+}
+
+/** 函数式组件：把 VNode 数组渲染到模板里（Vue 模板无法直接插 VNode 数组） */
+const PaneVNodes = (props: { nodes: VNode[] }): VNode[] => props.nodes;
 
 const current = ref("");
 watch(
@@ -120,8 +140,10 @@ function remoteState(tab: TabItem): RemoteState | undefined {
     :closable="closable"
   >
     <el-tab-pane v-for="(tab, index) in tabs" :key="tab.id" :label="tab.label" :name="String(index)">
+      <!-- design 来源：渲染器分发的 pane 容器（可拖拽编辑 / 数据驱动），优先级最高 -->
+      <PaneVNodes v-if="tab.content === 'design' && hasPane(tab)" :nodes="paneVNodes(tab)" />
       <SchemaFragment
-        v-if="embeddedOf(tab)"
+        v-else-if="embeddedOf(tab)"
         :page="embeddedOf(tab)"
         :scope="scope"
         :mode="embedMode"
@@ -131,7 +153,9 @@ function remoteState(tab: TabItem): RemoteState | undefined {
       <div v-else-if="remoteState(tab)?.error" class="wb-tabs__state wb-tabs__state--error">
         {{ remoteState(tab)?.error }}
       </div>
-      <div v-else class="wb-tabs__body">{{ tab.text }}</div>
+      <!-- 纯文本只兼容旧页面；设计器已不再提供该来源，建议改用文本标签节点 -->
+      <div v-else-if="tab.text" class="wb-tabs__body">{{ tab.text }}</div>
+      <div v-else-if="env?.design" class="wb-tabs__state">空页签 · 从右侧物料拖入组件，或配置内容数据路径</div>
     </el-tab-pane>
   </el-tabs>
 </template>

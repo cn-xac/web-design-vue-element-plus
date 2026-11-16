@@ -14,19 +14,19 @@ import { createTabId, type TabItem } from "@x-ac/web-design-core";
 const props = defineProps<{ items: TabItem[] }>();
 const emit = defineEmits<{ save: [items: TabItem[]]; close: [] }>();
 
-type ContentKind = "text" | "dataPath" | "url";
+type ContentKind = "design" | "dataPath" | "url";
 
 const rows = reactive<TabItem[]>(
   props.items.length
-    ? props.items.map((item) => ({ ...item }))
-    : [{ id: createTabId(), label: "标签一", text: "" }],
+    ? props.items.map((item) => ({ ...item, content: item.content ?? "design" }))
+    : [{ id: createTabId(), label: "标签一", content: "design" }],
 );
 
 const dragIndex = ref(-1);
 const overIndex = ref(-1);
 
 function addRow(): void {
-  rows.push({ id: createTabId(), label: `标签${rows.length + 1}`, text: "" });
+  rows.push({ id: createTabId(), label: `标签${rows.length + 1}`, content: "design" });
 }
 
 function removeRow(index: number): void {
@@ -62,23 +62,29 @@ function onDragEnd(): void {
 /* ---------------- 内容来源 ---------------- */
 
 function contentKind(row: TabItem): ContentKind {
+  if (row.content === "dataPath" || row.content === "url") return row.content;
+  // 旧页面可能只有 text/dataPath/url 没有 content，按既有优先级推断
   if (row.dataPath) return "dataPath";
   if (row.url) return "url";
-  return "text";
+  return "design";
 }
 
 /** 三种来源互斥：切换时清掉另外两种，避免残留配置在运行时抢优先级 */
 function setKind(row: TabItem, kind: ContentKind): void {
-  if (kind === "text") {
+  row.content = kind;
+  if (kind === "design") {
     delete row.dataPath;
     delete row.url;
     delete row.method;
+    delete row.text;
   } else if (kind === "dataPath") {
     delete row.url;
     delete row.method;
+    delete row.text;
     row.dataPath = row.dataPath ?? "";
   } else {
     delete row.dataPath;
+    delete row.text;
     row.url = row.url ?? "";
     row.method = row.method ?? "get";
   }
@@ -96,11 +102,10 @@ function save(): void {
       const item: TabItem = { id: row.id, label: row.label.trim() };
       if (row.mark?.trim()) item.mark = row.mark.trim();
       const kind = contentKind(row);
-      if (kind === "text") {
-        if (row.text) item.text = row.text;
-      } else if (kind === "dataPath") {
+      item.content = kind;
+      if (kind === "dataPath") {
         if (row.dataPath?.trim()) item.dataPath = row.dataPath.trim();
-      } else if (row.url?.trim()) {
+      } else if (kind === "url" && row.url?.trim()) {
         item.url = row.url.trim();
         item.method = row.method ?? "get";
       }
@@ -167,18 +172,12 @@ function save(): void {
           :model-value="contentKind(row)"
           @update:model-value="(v: ContentKind) => setKind(row, v)"
         >
-          <ElOption label="文本" value="text" />
+          <ElOption label="设计器内编辑" value="design" />
           <ElOption label="绑定数据" value="dataPath" />
           <ElOption label="外部 URL" value="url" />
         </ElSelect>
 
-        <ElInput
-          v-if="contentKind(row) === 'text'"
-          size="small"
-          placeholder="页签内容"
-          :model-value="row.text ?? ''"
-          @update:model-value="(v: string) => setText(row, 'text', v)"
-        />
+        <span v-if="contentKind(row) === 'design'" class="tabdlg__design-tip">在画布里向该页签拖入组件</span>
         <ElInput
           v-else-if="contentKind(row) === 'dataPath'"
           size="small"
@@ -269,5 +268,10 @@ function save(): void {
   display: grid;
   grid-template-columns: 84px 1fr;
   gap: 6px;
+}
+.tabdlg__design-tip {
+  font-size: 11px;
+  color: var(--el-text-color-secondary, #909399);
+  padding-left: 2px;
 }
 </style>

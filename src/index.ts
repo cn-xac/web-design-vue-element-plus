@@ -23,6 +23,7 @@ import EpSegmented from "./designer/EpSegmented.vue";
 import EpSelect from "./designer/EpSelect.vue";
 import EpTooltip from "./designer/EpTooltip.vue";
 import TabItemsEditor from "./designer/TabItemsEditor.vue";
+import JsonPageEditor from "./designer/JsonPageEditor.vue";
 
 /**
  * 设计器自身 UI 的 Element Plus 实现（D3）：
@@ -48,8 +49,8 @@ export const elementPlusAdapter: UiAdapter<Component | string> = defineVueAdapte
   components: COMPONENT_MAP,
   materials: elementPlusMaterials,
   designer: designerKit as unknown as DesignerKit<Component | string>,
-  // 标签项结构化编辑器：type=tabItems 的字段据此弹出维护弹窗（re0BNA）
-  editors: { tabItems: TabItemsEditor },
+  // 标签项 / 容器数据驱动编辑器：按字段 type 覆盖属性面板控件
+  editors: { tabItems: TabItemsEditor, jsonPage: JsonPageEditor },
   binding: VUE_BINDING,
   actions: elementAdapter,
 });
