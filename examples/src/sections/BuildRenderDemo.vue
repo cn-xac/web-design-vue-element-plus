@@ -139,6 +139,7 @@ const builtNodes = computed(() => builtPage.children?.length ?? 0);
 .buildrender {
   display: flex;
   flex: 1;
+  height: 100%;
   min-height: 0;
 }
 .buildrender__grid {
@@ -204,9 +205,9 @@ const builtNodes = computed(() => builtPage.children?.length ?? 0);
   background: #fafbfc;
   border: 1px solid #e5e6eb;
   border-radius: 6px;
-  max-height: 520px;
-  overflow: auto;
+  flex: 1;
   min-height: 200px;
+  overflow: auto;
 }
 .buildrender__canvas--live {
   min-height: 360px;

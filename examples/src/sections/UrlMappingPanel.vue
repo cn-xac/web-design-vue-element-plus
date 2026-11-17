@@ -198,6 +198,7 @@ async function run(): Promise<void> {
   display: flex;
   gap: 16px;
   flex: 1;
+  height: 100%;
   min-height: 0;
 }
 .mapdemo__config,

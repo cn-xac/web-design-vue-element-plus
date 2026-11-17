@@ -39,28 +39,26 @@ const tab = ref("states");
   border-radius: 8px;
   padding: 0 16px 16px;
 }
+/* Grid 比 flex 更确定：auto 行放表头，minmax(0,1fr) 行吃掉剩余高度 */
 .workbench__tabs {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   flex: 1;
+  height: 100%;
   min-height: 0;
   width: 100%;
 }
 .workbench__tabs :deep(.el-tabs__header) {
   margin: 0 0 12px;
-  flex: 0 0 auto;
 }
-/* el-tabs__content 默认 display:block，必须自己变成 column flex 才能把高度传给 tab-pane */
+/* content 占满第二行；pane 再撑满 content，子组件根 height:100% 才能生效 */
 .workbench__tabs :deep(.el-tabs__content) {
-  flex: 1;
+  height: 100%;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
 }
-/* tab-pane 撑满并成为 flex 容器，子组件根元素的 flex:1 才能生效占满全高 */
 .workbench__tabs :deep(.el-tab-pane) {
-  flex: 1;
+  height: 100%;
   min-height: 0;
   display: flex;
   flex-direction: column;

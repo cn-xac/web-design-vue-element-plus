@@ -113,6 +113,7 @@ onMounted(load);
   display: flex;
   flex-direction: column;
   flex: 1;
+  height: 100%;
   min-height: 0;
   background: #fff;
   border: 1px solid #e5e6eb;
@@ -168,6 +169,8 @@ onMounted(load);
 .schemapage__data,
 .schemapage__render {
   overflow: auto;
+  display: flex;
+  flex-direction: column;
 }
 .schemapage__data,
 .schemapage__render {
@@ -215,7 +218,8 @@ onMounted(load);
   background: #fafbfc;
   border: 1px solid #e5e6eb;
   border-radius: 6px;
-  max-height: 560px;
+  flex: 1;
+  min-height: 0;
   overflow: auto;
 }
 @media (max-width: 1000px) {
