@@ -115,6 +115,36 @@ export function mapResponse(
   return { raw, rows, text, options: [] };
 }
 
+/** 拉取一份遵循 Schema 协议的 JSON（供「完整实例」渲染成页面），不抛错 */
+export async function fetchSchemaPage(
+  url: string,
+  timeout = 2000,
+): Promise<{ ok: true; page: Record<string, unknown> } | { ok: false; message: string }> {
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer = timeout > 0 ? setTimeout(() => { timedOut = true; controller.abort(); }, timeout) : undefined;
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) return { ok: false, message: `HTTP ${res.status} ${res.statusText}` };
+    const text = await res.text();
+    let page: unknown;
+    try {
+      page = JSON.parse(text);
+    } catch (e) {
+      return { ok: false, message: `返回不是合法 Schema JSON：${(e as Error).message}` };
+    }
+    if (!page || typeof page !== "object" || !Array.isArray((page as { children?: unknown }).children)) {
+      return { ok: false, message: "JSON 缺少 children 数组，不是合法的 PageSchema" };
+    }
+    return { ok: true, page: page as Record<string, unknown> };
+  } catch (error) {
+    if (timedOut || (error as Error)?.name === "AbortError") return { ok: false, message: `请求超时（${timeout}ms）` };
+    return { ok: false, message: `网络错误：${(error as Error)?.message ?? String(error)}` };
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export interface FetchAndMapOptions extends MappingConfig {
   url: string;
   /** 超时毫秒；<=0 表示不超时 */

@@ -23,6 +23,7 @@ import RuntimeSection from "./sections/RuntimeSection.vue";
 import CatalogSection from "./sections/CatalogSection.vue";
 import AdapterSection from "./sections/AdapterSection.vue";
 import UrlMappingPanel from "./sections/UrlMappingPanel.vue";
+import SchemaPageDemo from "./sections/SchemaPageDemo.vue";
 
 type TabKey = "designer" | "runtime" | "mapping" | "catalog" | "adapter";
 
@@ -84,9 +85,12 @@ function goPreview(): void {
       :data="data"
     />
 
-    <!-- 映射测试：URL 获取数据 → 标签内容映射的端到端调试台 -->
+    <!-- 映射测试：URL 获取数据 → 标签内容映射 + JSON 解析成页面的完整实例 -->
     <div v-show="active === 'mapping'" class="demo__panel demo__panel--mapping">
-      <UrlMappingPanel />
+      <div class="demo__mapping-stack">
+        <UrlMappingPanel />
+        <SchemaPageDemo />
+      </div>
     </div>
 
     <!-- 物料总览：保持本包原实现不变，仅换一个可滚动的容器 -->

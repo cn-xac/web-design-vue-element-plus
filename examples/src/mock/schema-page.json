@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "1.3.0",
+  "id": "page_from_url",
+  "type": "page",
+  "meta": { "title": "URL 解析生成的页面（含各种容器）", "device": "pc" },
+  "state": {
+    "form": {
+      "sp_tab_schema": "{\"schemaVersion\":\"1.3.0\",\"id\":\"tab_embedded\",\"type\":\"page\",\"children\":[{\"id\":\"te_tip\",\"component\":\"ec-alert\",\"props\":{\"type\":\"info\",\"title\":\"页签内容来自 dataPath 映射\",\"description\":\"这段是 state.form.sp_tab_schema 里的 Schema JSON 字符串，经 SchemaFragment 解析成页面。\",\"showIcon\":true}},{\"id\":\"te_input\",\"component\":\"ec-input\",\"props\":{\"label\":\"页签内字段\",\"modelValue\":\"{{form.sp_name}}\"}}]}",
+      "sp_name": "李四",
+      "sp_dept": "产品中心",
+      "sp_years": 5,
+      "sp_join": "2023-06-15",
+      "sp_remote": true,
+      "sp_remark": "这段数据来自 URL 返回的 Schema.state.form，由 SchemaRenderer 回填到控件",
+      "sp_items": [
+        { "sp_goods": "无线鼠标", "sp_qty": 2 },
+        { "sp_goods": "笔记本支架", "sp_qty": 1 }
+      ]
+    }
+  },
+  "children": [
+    {
+      "id": "sp_title",
+      "component": "ec-title",
+      "props": { "text": "这份页面完全由 URL 返回的 Schema JSON 生成", "level": 3 }
+    },
+    {
+      "id": "sp_tip",
+      "component": "ec-alert",
+      "props": {
+        "type": "success",
+        "title": "JSON → 页面解析验证",
+        "description": "下方依次是：栅格容器(row/col)、卡片容器(card)、页签容器(tabs)、子表单(subform)。字段值来自 Schema.state.form，通过 {{form.xxx}} 绑定回填。",
+        "showIcon": true
+      }
+    },
+    {
+      "id": "sp_card_basic",
+      "component": "ec-card",
+      "props": { "title": "卡片容器 · 基础信息（栅格两列）", "shadow": "never" },
+      "children": [
+        {
+          "id": "sp_row_basic",
+          "component": "ec-row",
+          "props": { "gutter": 16, "gutterVertical": 16 },
+          "children": [
+            {
+              "id": "sp_col_name",
+              "component": "ec-col",
+              "props": { "span": 12 },
+              "children": [
+                {
+                  "id": "sp_name",
+                  "component": "ec-input",
+                  "props": { "label": "姓名", "modelValue": "{{form.sp_name}}", "clearable": true, "placeholder": "请输入" }
+                }
+              ]
+            },
+            {
+              "id": "sp_col_dept",
+              "component": "ec-col",
+              "props": { "span": 12 },
+              "children": [
+                {
+                  "id": "sp_dept",
+                  "component": "ec-select",
+                  "props": {
+                    "label": "部门",
+                    "modelValue": "{{form.sp_dept}}",
+                    "options": [
+                      { "label": "技术中心", "value": "技术中心" },
+                      { "label": "产品中心", "value": "产品中心" },
+                      { "label": "设计中心", "value": "设计中心" }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "id": "sp_col_years",
+              "component": "ec-col",
+              "props": { "span": 12 },
+              "children": [
+                {
+                  "id": "sp_years",
+                  "component": "ec-number",
+                  "props": { "label": "司龄", "modelValue": "{{form.sp_years}}", "min": 0, "max": 50, "precision": 0 }
+                }
+              ]
+            },
+            {
+              "id": "sp_col_join",
+              "component": "ec-col",
+              "props": { "span": 12 },
+              "children": [
+                {
+                  "id": "sp_join",
+                  "component": "ec-date",
+                  "props": { "label": "入职日期", "modelValue": "{{form.sp_join}}", "type": "date", "valueFormat": "YYYY-MM-DD" }
+                }
+              ]
+            },
+            {
+              "id": "sp_col_remote",
+              "component": "ec-col",
+              "props": { "span": 12 },
+              "children": [
+                {
+                  "id": "sp_remote",
+                  "component": "ec-switch",
+                  "props": { "label": "远程办公", "modelValue": "{{form.sp_remote}}", "activeText": "是", "inactiveText": "否" }
+                }
+              ]
+            },
+            {
+              "id": "sp_col_remark",
+              "component": "ec-col",
+              "props": { "span": 24 },
+              "children": [
+                {
+                  "id": "sp_remark",
+                  "component": "ec-textarea",
+                  "props": { "label": "备注", "modelValue": "{{form.sp_remark}}", "rows": 2, "type": "textarea" }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sp_tabs",
+      "component": "ec-tabs",
+      "props": {
+        "type": "",
+        "items": [
+          { "id": "tab_static", "label": "页签一 · 静态文本", "content": "text", "text": "这是页签容器的第一个页面，纯文本内容。" },
+          { "id": "tab_data", "label": "页签二 · 数据映射", "content": "dataPath", "dataPath": "form.sp_tab_schema" }
+        ]
+      }
+    },
+    {
+      "id": "sp_subform",
+      "component": "ec-subform",
+      "props": { "label": "子表单容器（数组数据自动展开成行）", "itemPath": "sp_items", "addText": "添加一行" },
+      "children": [
+        { "id": "sp_goods", "component": "ec-input", "props": { "label": "物品" } },
+        { "id": "sp_qty", "component": "ec-number", "props": { "label": "数量", "min": 1, "precision": 0 } }
+      ]
+    }
+  ]
+}

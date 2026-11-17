@@ -7,6 +7,7 @@
  * 因此无需改动引擎、也不依赖任何后端即可让「外部数据源」示例真实跑起来。
  */
 import payload from "./external-data.json";
+import schemaPage from "./schema-page.json";
 
 /** 示例接口地址：schema.ts 的 externalSources.url 直接引用，避免两处写字符串 */
 export const EXTERNAL_API = {
@@ -29,6 +30,8 @@ export const TEST_API = {
   timeout: "/mock/api/test/timeout",
   /** 数据格式异常：200 但返回 HTML 文本，非 JSON */
   badFormat: "/mock/api/test/bad-format",
+  /** 完整实例：返回一份遵循 Schema 协议的 JSON（含各种容器 + 表单数据） */
+  schemaPage: "/mock/api/test/schema-page",
 } as const;
 
 const ROUTES: Record<string, unknown> = {
@@ -114,6 +117,7 @@ export function installExternalMock(): void {
         headers: { "content-type": "text/html" },
       });
     }
+    if (path === TEST_API.schemaPage) return json(schemaPage);
 
     if (Object.prototype.hasOwnProperty.call(ROUTES, path)) {
       return json(ROUTES[path]);

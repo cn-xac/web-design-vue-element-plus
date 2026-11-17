@@ -484,3 +484,14 @@ code {
     padding: 12px;
   }
 }
+
+/* ===== 映射测试（URL 取数 + JSON 解析成页面完整实例） ===== */
+.demo__panel--mapping {
+  flex-direction: column;
+  overflow: auto;
+}
+.demo__mapping-stack {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
