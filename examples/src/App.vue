@@ -22,13 +22,15 @@ import DesignerSection from "./sections/DesignerSection.vue";
 import RuntimeSection from "./sections/RuntimeSection.vue";
 import CatalogSection from "./sections/CatalogSection.vue";
 import AdapterSection from "./sections/AdapterSection.vue";
+import UrlMappingPanel from "./sections/UrlMappingPanel.vue";
 
-type TabKey = "designer" | "runtime" | "catalog" | "adapter";
+type TabKey = "designer" | "runtime" | "mapping" | "catalog" | "adapter";
 
 const active = ref<TabKey>("designer");
 const tabs: { label: string; value: TabKey }[] = [
   { label: "设计器", value: "designer" },
   { label: "渲染器", value: "runtime" },
+  { label: "映射测试", value: "mapping" },
   { label: "物料总览", value: "catalog" },
   { label: "适配包清单", value: "adapter" },
 ];
@@ -81,6 +83,11 @@ function goPreview(): void {
       :page="schema"
       :data="data"
     />
+
+    <!-- 映射测试：URL 获取数据 → 标签内容映射的端到端调试台 -->
+    <div v-show="active === 'mapping'" class="demo__panel demo__panel--mapping">
+      <UrlMappingPanel />
+    </div>
 
     <!-- 物料总览：保持本包原实现不变，仅换一个可滚动的容器 -->
     <section v-show="active === 'catalog'" class="demo__panel demo__panel--catalog">
