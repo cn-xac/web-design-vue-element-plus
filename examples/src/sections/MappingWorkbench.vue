@@ -9,6 +9,7 @@ import { ref } from "vue";
 import UrlMappingPanel from "./UrlMappingPanel.vue";
 import SchemaPageDemo from "./SchemaPageDemo.vue";
 import BuildRenderDemo from "./BuildRenderDemo.vue";
+import MountMappingDemo from "./MountMappingDemo.vue";
 
 const tab = ref("states");
 </script>
@@ -24,6 +25,9 @@ const tab = ref("states");
       </el-tab-pane>
       <el-tab-pane label="构建与渲染" name="build">
         <BuildRenderDemo />
+      </el-tab-pane>
+      <el-tab-pane label="容器挂载映射" name="mount">
+        <MountMappingDemo />
       </el-tab-pane>
     </el-tabs>
   </div>
