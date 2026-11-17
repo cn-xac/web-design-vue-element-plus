@@ -488,7 +488,7 @@ code {
 /* ===== 映射测试（URL 取数 + JSON 解析成页面完整实例） ===== */
 .demo__panel--mapping {
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
 }
 .demo__mapping-stack {
   display: flex;

@@ -50,12 +50,20 @@ const tab = ref("states");
   margin: 0 0 12px;
   flex: 0 0 auto;
 }
+/* el-tabs__content 默认 display:block，必须自己变成 column flex 才能把高度传给 tab-pane */
 .workbench__tabs :deep(.el-tabs__content) {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+/* tab-pane 撑满并成为 flex 容器，子组件根元素的 flex:1 才能生效占满全高 */
 .workbench__tabs :deep(.el-tab-pane) {
+  flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 </style>

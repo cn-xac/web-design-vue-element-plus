@@ -110,11 +110,14 @@ onMounted(load);
 
 <style scoped>
 .schemapage {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   background: #fff;
   border: 1px solid #e5e6eb;
   border-radius: 8px;
   padding: 18px;
-  margin-top: 16px;
 }
 .schemapage__head {
   display: flex;
@@ -159,6 +162,12 @@ onMounted(load);
   grid-template-columns: 340px 1fr;
   gap: 16px;
   margin-top: 14px;
+  flex: 1;
+  min-height: 0;
+}
+.schemapage__data,
+.schemapage__render {
+  overflow: auto;
 }
 .schemapage__data,
 .schemapage__render {
